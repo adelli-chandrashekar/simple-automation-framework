@@ -1,0 +1,18 @@
+# Virtual Environments
+venv/
+env/
+.env
+
+# Pytest / Python Cache
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Test Reports and Logs
+reports/
+logs/
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
