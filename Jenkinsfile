@@ -1,6 +1,10 @@
 pipeline {
-    // This tells Jenkins it can run on any available Jenkins agent/node
-    agent any
+    // We force Jenkins to run the entire job on the D: drive to save your C: drive!
+    agent {
+        node {
+            customWorkspace 'D:\\Jenkins\\workspace\\Simple-Automation'
+        }
+    }
 
     // We can define variables here to make our code cleaner
     environment {
