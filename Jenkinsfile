@@ -4,7 +4,9 @@ pipeline {
 
     // We can define variables here to make our code cleaner
     environment {
-        PYTHON = 'python' // On some systems this might be 'python3'
+        // We must use the absolute path because Jenkins runs as LocalSystem
+        // and doesn't know where Python is installed on your computer!
+        PYTHON = '"C:\\Users\\CHANDRA SHEKAR\\AppData\\Local\\Programs\\Python\\Python310\\python.exe"'
     }
 
     stages {
