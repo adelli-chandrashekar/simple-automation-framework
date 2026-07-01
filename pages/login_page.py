@@ -15,7 +15,7 @@ class LoginPage(BasePage):
     PASSWORD_INPUT = (By.ID, "password")
     
     # Using CSS Selector to demonstrate variety!
-    LOGIN_BUTTON   = (By.CSS_SELECTOR, "input.submit-button")
+    LOGIN_BUTTON   = (By.CSS_SELECTOR, "input[type='submit']")
     
     # Using XPath for complex elements without IDs
     ERROR_MESSAGE  = (By.XPATH, "//h3[@data-test='error']")
