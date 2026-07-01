@@ -3,9 +3,14 @@ name: Automation Test Pipeline
 # This block tells GitHub when to run the tests.
 # In this case, it runs every time someone pushes code to the "main" branch.
 on:
+  # 1. Trigger whenever code is pushed to the main branch
   push:
-    branches:
-      - main
+    branches: [ "main" ]
+  
+  # 2. ── SCHEDULED NIGHTLY BUILD ──
+  # Uncomment the block below to run the tests automatically every night at midnight!
+  # schedule:
+  #   - cron: '0 0 * * *'
 
 jobs:
   test:

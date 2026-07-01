@@ -7,6 +7,12 @@ pipeline {
         }
     }
 
+    ── SCHEDULED NIGHTLY BUILD ──
+    Uncomment the block below to run the tests automatically every night at midnight!
+    triggers {
+        cron('H 0 * * *')
+    }
+
     // We can define variables here to make our code cleaner
     environment {
         // We must use the absolute path because Jenkins runs as LocalSystem
