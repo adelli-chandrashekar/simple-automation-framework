@@ -7,8 +7,8 @@ pipeline {
         }
     }
 
-    ── SCHEDULED NIGHTLY BUILD ──
-    Uncomment the block below to run the tests automatically every night at midnight!
+    // ── SCHEDULED NIGHTLY BUILD ──
+    // Uncomment the block below to run the tests automatically every night at midnight!
     triggers {
         cron('H 0 * * *')
     }
