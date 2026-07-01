@@ -13,7 +13,11 @@ class LoginPage(BasePage):
     # We use tuples: (By.ID, "string")
     USERNAME_INPUT = (By.ID, "user-name")
     PASSWORD_INPUT = (By.ID, "password")
-    LOGIN_BUTTON   = (By.ID, "login-button")
+    
+    # Using CSS Selector to demonstrate variety!
+    LOGIN_BUTTON   = (By.CSS_SELECTOR, "input.submit-button")
+    
+    # Using XPath for complex elements without IDs
     ERROR_MESSAGE  = (By.XPATH, "//h3[@data-test='error']")
 
     # ── Business Methods ──
