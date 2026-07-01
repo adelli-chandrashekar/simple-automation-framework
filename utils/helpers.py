@@ -52,16 +52,14 @@ class Validators:
         logger.info(f"✅ {key} = {expected}")
 
 
-def random_user_data(name="Test User", job="QA Engineer"):
+def generate_user_payload(first_name="Chandra", last_name="Shekar", age=28, role="user"):
     """
-    Generate simple user data for POST requests.
-
-    Why a function and not a fixture?
-        Because sometimes you need user data with custom values.
-        A function lets you pass arguments: random_user_data(name="Alice")
-        A fixture doesn't take arguments easily.
-
-    Returns:
-        dict: {"name": "Test User", "job": "QA Engineer"}
+    Generate a JSON payload for creating users in DummyJSON.
+    Centralizing this here keeps our test files clean and adheres to DRY.
     """
-    return {"name": name, "job": job}
+    return {
+        "firstName": first_name,
+        "lastName": last_name,
+        "age": age,
+        "role": role
+    }

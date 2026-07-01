@@ -20,8 +20,7 @@ WHAT YOU LEARN HERE:
 import pytest
 import logging
 
-from utils.helpers import Validators
-
+from utils.helpers import Validators, generate_user_payload
 logger = logging.getLogger(__name__)
 
 
@@ -68,11 +67,8 @@ class TestCreateUser:
 
     def test_create_single_user(self, api_client):
         """Create a single user and verify the response"""
-        user_data = {
-            "firstName": "Chandra",
-            "lastName": "Shekar",
-            "age": 28,
-        }
+        # We now use our centralized payload generator!
+        user_data = generate_user_payload(first_name="Chandra", last_name="Shekar")
 
         response = api_client.post("/users/add", json=user_data)
 
@@ -91,7 +87,12 @@ class TestCreateUser:
     ])
     def test_create_multiple_users(self, api_client, first_name, last_name, role):
         """Data-driven: create users with different roles"""
-        user_data = {"firstName": first_name, "lastName": last_name, "role": role}
+        # We override the default arguments in the helper function!
+        user_data = generate_user_payload(
+            first_name=first_name, 
+            last_name=last_name, 
+            role=role
+        )
 
         response = api_client.post("/users/add", json=user_data)
 
