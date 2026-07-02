@@ -36,19 +36,19 @@ jobs:
 
       # Step 4: Run API Tests
       - name: Run API Tests
-        run: pytest -m api -v --html=reports/api_report.html
+        run: pytest -m api -v --alluredir=allure-results
 
       # Step 5: Run UI Tests
       # Note: We don't need a browser installed manually because GitHub's ubuntu-latest
       # already has Chrome pre-installed, and webdriver-manager will handle the rest!
       - name: Run UI Tests
-        run: pytest -m ui -v --html=reports/ui_report.html
+        run: pytest -m ui -v --alluredir=allure-results
 
       # Step 6: Save the HTML reports so we can view them later
       # This runs "always()" so it saves the reports even if a test fails
-      - name: Upload Test Reports
+      - name: Upload Allure Results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: automation-reports
-          path: reports/*.html
+          name: allure-results
+          path: allure-results

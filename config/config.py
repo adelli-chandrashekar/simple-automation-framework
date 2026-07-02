@@ -27,8 +27,9 @@ class Config:
     """
 
     def __init__(self, env=None):
-        # Which environment? Check ENV variable, or default to "dev"
-        self.env = env or os.environ.get("ENV", "dev")
+        # We now rely on Pytest's '--env' CLI argument (passed from conftest.py)
+        # If no env is passed (e.g. running a standalone script), default to "dev"
+        self.env = env or "dev"
 
         # Build path to environments.json (same folder as this file)
         config_file = os.path.join(os.path.dirname(__file__), "environments.json")

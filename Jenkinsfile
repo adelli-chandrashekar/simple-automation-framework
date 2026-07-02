@@ -50,7 +50,7 @@ pipeline {
                 echo "Running API Test Suite..."
                 bat """
                     call venv\\Scripts\\activate.bat
-                    pytest -m api -v --html=reports/api_report.html
+                    pytest -m api -v --alluredir=allure-results
                 """
             }
         }
@@ -61,7 +61,7 @@ pipeline {
                 echo "Running UI Test Suite..."
                 bat """
                     call venv\\Scripts\\activate.bat
-                    pytest -m ui -v --html=reports/ui_report.html
+                    pytest -m ui -v --alluredir=allure-results
                 """
             }
         }
@@ -71,8 +71,10 @@ pipeline {
     post {
         always {
             echo "Pipeline finished! Cleaning up..."
-            // In a real project, we might archive the HTML reports here
-            archiveArtifacts artifacts: 'reports/*.html', allowEmptyArchive: true
+            // We archive the raw JSON Allure results. 
+            // In a real Jenkins setup, you would install the 'Allure Jenkins Plugin' 
+            // and use the 'allure' step here to generate the beautiful HTML dashboard!
+            archiveArtifacts artifacts: 'allure-results/**', allowEmptyArchive: true
         }
         success {
             echo "✅ ALL TESTS PASSED! Ready for deployment!"

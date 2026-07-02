@@ -39,6 +39,19 @@ from base.api_client import APIClient
 logger = logging.getLogger(__name__)
 
 # ──────────────────────────────────────────────────────────────
+# PYTEST HOOK: Add Custom Command Line Options
+# ──────────────────────────────────────────────────────────────
+def pytest_addoption(parser):
+    """
+    This is a built-in Pytest Hook. It allows us to add our own custom
+    command line arguments when running tests.
+    Example: pytest --env=staging
+    """
+    parser.addoption(
+        "--env", action="store", default="dev", help="Environment to run tests against: dev or staging"
+    )
+
+# ──────────────────────────────────────────────────────────────
 # FIXTURE 0: driver — UI Automation Browser
 # ──────────────────────────────────────────────────────────────
 
@@ -74,12 +87,13 @@ def driver(config):
 # ──────────────────────────────────────────────────────────────
 
 @pytest.fixture(scope="session")
-def config():
+def config(request):
     """
     Session-scoped: ONE Config object for the whole test run.
-    Every test that asks for 'config' gets the SAME object.
+    It reads the '--env' argument we passed in the command line using pytest_addoption.
     """
-    return Config()
+    env_name = request.config.getoption("--env")
+    return Config(env=env_name)
 
 
 # ──────────────────────────────────────────────────────────────
