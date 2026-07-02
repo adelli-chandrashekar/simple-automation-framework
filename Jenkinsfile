@@ -70,11 +70,15 @@ pipeline {
     // This block runs after all stages finish, regardless of success or failure
     post {
         always {
-            echo "Pipeline finished! Cleaning up..."
-            // We archive the raw JSON Allure results. 
-            // In a real Jenkins setup, you would install the 'Allure Jenkins Plugin' 
-            // and use the 'allure' step here to generate the beautiful HTML dashboard!
-            archiveArtifacts artifacts: 'allure-results/**', allowEmptyArchive: true
+            echo "Pipeline finished! Generating Allure Report..."
+            // This 'allure' step requires the Allure Jenkins Plugin to be installed!
+            allure([
+                includeProperties: false,
+                jdk: '',
+                properties: [],
+                reportBuildPolicy: 'ALWAYS',
+                results: [[path: 'allure-results']]
+            ])
         }
         success {
             echo "✅ ALL TESTS PASSED! Ready for deployment!"
