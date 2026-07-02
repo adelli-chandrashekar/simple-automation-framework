@@ -34,7 +34,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from config.config import Config
-from base.api_client import APIClient
+from clients.api_client import APIClient
 
 logger = logging.getLogger(__name__)
 
