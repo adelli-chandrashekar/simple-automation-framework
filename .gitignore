@@ -16,3 +16,8 @@ logs/
 # OS generated files
 .DS_Store
 Thumbs.db
+
+# Allure Reporting
+allure-results/
+allure-cli/
+allure.zip
