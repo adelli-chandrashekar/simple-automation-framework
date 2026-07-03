@@ -85,6 +85,10 @@ pipeline {
         }
         failure {
             echo "❌ TESTS FAILED! Sending alert to development team!"
+            // To make this work, you must configure the SMTP server in Manage Jenkins -> System
+            mail to: 'adelli.chandrashekar@gmail.com',
+                 subject: "Pipeline Failed: ${env.JOB_NAME} Build #${env.BUILD_NUMBER}",
+                 body: "The nightly automation suite has failed. Please check the Allure Report!"
         }
     }
 }
