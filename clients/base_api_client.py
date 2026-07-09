@@ -1,18 +1,18 @@
 """
-API Client
-==========
+Base API Client
+===============
 WHY THIS FILE EXISTS:
-    Instead of writing requests.get(), requests.post() everywhere,
-    we wrap them in a class. This gives us:
-      - A base_url so we don't repeat "https://reqres.in" in every test
-      - A session that keeps cookies and auth tokens alive
-      - Logging so we can see what was sent and received
+    This demonstrates the OOP concept of INHERITANCE (Don't Repeat Yourself).
+    Both our standard API (DummyJSON) and our OAuth API (GitHub) need to
+    make GET, POST, PATCH, and DELETE requests.
+    
+    Instead of writing these exact same methods twice in two different files,
+    we put them ONCE in this BaseAPIClient. Then, both APIClient and GitHubClient
+    will INHERIT from this class.
 
 WHAT YOU LEARN HERE:
-    - Class with __init__    : stores base_url and creates a session
-    - Instance methods       : get(), post(), put(), patch(), delete()
-    - requests.Session()     : reuses connections + keeps auth headers
-    - Logging                : simple logging.info() for visibility
+    - OOP Inheritance: Parent class (BaseAPIClient) and Child classes
+    - DRY Principle (Don't Repeat Yourself)
 """
 
 import logging
@@ -21,28 +21,17 @@ import requests
 logger = logging.getLogger(__name__)
 
 
-class APIClient:
+class BaseAPIClient:
     """
-    Simple HTTP client that wraps requests.Session.
-
-    Usage:
-        client = APIClient("https://reqres.in")
-        response = client.get("/api/users/2")
-        print(response.status_code)  # 200
-        print(response.json())       # {...user data...}
+    Parent class for all API clients.
+    Contains the generic HTTP methods that every API needs.
     """
 
     def __init__(self, base_url, timeout=10):
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
         self.session = requests.Session()
-
-        # Default headers — tell the server we're sending/expecting JSON
-        self.session.headers.update({
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-        })
-        logger.info(f"APIClient created for: {self.base_url}")
+        logger.info(f"BaseAPIClient created for: {self.base_url}")
 
     def get(self, endpoint, **kwargs):
         """Send a GET request"""
@@ -84,17 +73,7 @@ class APIClient:
         logger.info(f"  → {response.status_code}")
         return response
 
-    def set_auth_token(self, token):
-        """
-        Store auth token in session headers.
-        Once set, EVERY future request from this client
-        will automatically include this token — that's the
-        power of requests.Session!
-        """
-        self.session.headers["Authorization"] = f"Bearer {token}"
-        logger.info("Auth token set in session headers")
-
     def close(self):
         """Close the session (cleanup)"""
         self.session.close()
-        logger.info("APIClient session closed")
+        logger.info(f"Session closed for {self.base_url}")

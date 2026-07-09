@@ -5,7 +5,9 @@
         "auth_username": "emilys",
         "auth_password": "emilyspass",
         "timeout": 10,
-        "log_level": "INFO"
+        "log_level": "INFO",
+        "github_api_url": "https://api.github.com",
+        "github_token": "YOUR_GITHUB_TOKEN_HERE"
     },
     "staging": {
         "base_url": "https://dummyjson.com",
