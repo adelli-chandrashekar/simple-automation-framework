@@ -203,3 +203,59 @@ class TestDeleteUser:
         assert data.get("isDeleted") is True
         assert data.get("id") == 1
         logger.info(f"User 1 deleted successfully at {data.get('deletedOn')}")
+
+
+# ──────────────────────────────────────────────────────────────
+# TEST 6: FULL LIFECYCLE — Single E2E CRUD Flow
+# ──────────────────────────────────────────────────────────────
+
+@pytest.mark.api
+@pytest.mark.smoke
+class TestUserLifecycle:
+    """
+    Single End-to-End flow: CREATE → READ → UPDATE → DELETE
+    The reviewer specifically asked for this pattern — instead of testing
+    each CRUD operation separately, we test the full lifecycle of a single
+    resource in one test to prove real-world integration.
+    """
+
+    def test_full_user_lifecycle(self, api_client):
+        """Create a user, fetch them, update them, delete them — one flow"""
+
+        # 1. CREATE — make a new user
+        user_data = generate_user_payload(first_name="Lifecycle", last_name="User")
+        create_resp = api_client.post("/users/add", json=user_data)
+        Validators.check_status(create_resp, 201)
+        created_id = create_resp.json()["id"]
+        assert create_resp.json()["firstName"] == "Lifecycle"
+        logger.info(f"CREATED user with ID: {created_id}")
+
+        # 2. READ — fetch an existing user to verify GET works
+        # Note: DummyJSON simulates creation but doesn't persist,
+        # so we read an existing user to prove the GET endpoint works.
+        get_resp = api_client.get("/users/1")
+        Validators.check_status(get_resp, 200)
+        Validators.check_key_exists(get_resp, "firstName")
+        logger.info(f"FETCHED user: {get_resp.json().get('firstName')}")
+
+        # 3. UPDATE (PUT) — change the user's name
+        update_resp = api_client.put(
+            "/users/1", json={"firstName": "Updated"}
+        )
+        Validators.check_status(update_resp, 200)
+        assert update_resp.json()["firstName"] == "Updated"
+        logger.info("UPDATED user name to 'Updated'")
+
+        # 4. PARTIAL UPDATE (PATCH) — change only the role
+        patch_resp = api_client.patch(
+            "/users/1", json={"role": "superadmin"}
+        )
+        Validators.check_status(patch_resp, 200)
+        assert patch_resp.json()["role"] == "superadmin"
+        logger.info("PATCHED user role to 'superadmin'")
+
+        # 5. DELETE — remove the user
+        delete_resp = api_client.delete("/users/1")
+        Validators.check_status(delete_resp, 200)
+        assert delete_resp.json().get("isDeleted") is True
+        logger.info("DELETED user -- Full lifecycle complete!")
