@@ -14,6 +14,10 @@ WHAT YOU LEARN HERE:
 
 import os
 import json
+from dotenv import load_dotenv
+
+# Load environment variables from .env file (if it exists)
+load_dotenv()
 
 
 class Config:
@@ -67,7 +71,16 @@ class Config:
         return self._settings.get("auth_password")
 
     def get(self, key, default=None):
-        """Get any setting by key name"""
+        """
+        Get any setting by key name.
+        Checks system environment variables first (like .env), 
+        then falls back to environments.json.
+        """
+        # Look for the exact key (e.g. GITHUB_TOKEN) or uppercase version
+        env_val = os.environ.get(key) or os.environ.get(key.upper())
+        if env_val:
+            return env_val
+            
         return self._settings.get(key, default)
 
     def __repr__(self):
