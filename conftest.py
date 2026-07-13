@@ -194,16 +194,21 @@ def github_client(config):
 def db():
     """
     Connects to the single unified database (automation_test.db).
-    It clears out the 'users' table before tests run so CRUD tests have a fresh slate,
-    while leaving 'employees' and 'departments' untouched for advanced queries.
+    Automatically runs the seed script to guarantee the database exists 
+    and is perfectly fresh before any tests run!
     """
+    # 1. Zero-Setup Automation: Automatically seed the DB!
+    from scripts.seed_database import seed_database
+    logger.info("Auto-Bootstrapping Database for tests...")
+    seed_database()
+    
+    # 2. Connect and yield to tests
     db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "automation_test.db")
     database = DBHelper(db_name=db_path)
-
     
     yield database  # Hand the DB over to the tests
     
-    # TEARDOWN
+    # 3. Teardown
     database.close()
 
 
