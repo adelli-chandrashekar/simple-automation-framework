@@ -4,35 +4,15 @@ from utils.db_helper import DBHelper
 
 logger = logging.getLogger(__name__)
 
-@pytest.fixture(scope="module")
-def db():
-    """
-    Setup a temporary database for testing and tear it down afterward.
-    """
-    database = DBHelper("test_users.db")
-    
-    # SETUP: Create a fresh table before tests
-    database.execute_query('''
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            role TEXT NOT NULL
-        )
-    ''')
-    
-    yield database  # Hand the DB over to the tests
-    
-    # TEARDOWN: Drop the table and close connection after tests finish
-    database.execute_query("DROP TABLE users")
-    database.close()
-
-
 @pytest.mark.db
 class TestDatabaseOperations:
     
     def test_insert_and_verify_user(self, db):
         """Test inserting a user into the DB and reading it back"""
         
+        # 0. Clean slate (Simplest way to reset data without complex Pytest fixtures!)
+        db.execute_query("DELETE FROM users")
+
         # 1. Insert Data
         logger.info("Inserting user into DB...")
         db.execute_query(
@@ -61,10 +41,10 @@ class TestDatabaseOperations:
             ("Anita Desai", "QA Lead"),
         ]
 
-        for name, role in users:
-            db.execute_query(
-                "INSERT INTO users (name, role) VALUES (?, ?)", (name, role)
-            )
+        # We can now use our optimized execute_query method with the is_many flag!
+        db.execute_query(
+            "INSERT INTO users (name, role) VALUES (?, ?)", users, is_many=True
+        )
 
         # 2. Fetch all users from the table
         results = db.fetch_all("SELECT * FROM users")

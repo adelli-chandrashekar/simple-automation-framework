@@ -20,20 +20,28 @@ class DBHelper:
         logger.info(f"Connected to Database: {self.db_name}")
         return self.conn
 
-    def execute_query(self, query, params=()):
-        """Execute a query that doesn't return data (INSERT, UPDATE, DELETE)"""
+    def _get_cursor(self):
+        """Helper to ensure we have a valid connection and return a cursor."""
         if not self.conn:
             self.connect()
-        cursor = self.conn.cursor()
-        cursor.execute(query, params)
+        return self.conn.cursor()
+
+    def execute_query(self, query, params=(), is_many=False):
+        """Execute a query (INSERT, UPDATE, DELETE). Supports bulk execution if is_many=True."""
+        cursor = self._get_cursor()
+        
+        if is_many:
+            cursor.executemany(query, params)
+            logger.info(f"Bulk Executed Query: {query} with {len(params)} rows")
+        else:
+            cursor.execute(query, params)
+            logger.info(f"Executed Query: {query}")
+            
         self.conn.commit()
-        logger.info(f"Executed Query: {query}")
 
     def fetch_all(self, query, params=()):
         """Execute a query and return all results (SELECT)"""
-        if not self.conn:
-            self.connect()
-        cursor = self.conn.cursor()
+        cursor = self._get_cursor()
         cursor.execute(query, params)
         return cursor.fetchall()
 

@@ -36,6 +36,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from config.config import Config
 from clients.dummyjson_client import APIClient
 from clients.github_client import GitHubClient
+from utils.db_helper import DBHelper
 
 logger = logging.getLogger(__name__)
 
@@ -183,6 +184,27 @@ def github_client(config):
     yield client
 
     client.close()
+
+
+# ──────────────────────────────────────────────────────────────
+# FIXTURE 5: db — Unified Database for ALL Tests
+# ──────────────────────────────────────────────────────────────
+
+@pytest.fixture(scope="module")
+def db():
+    """
+    Connects to the single unified database (automation_test.db).
+    It clears out the 'users' table before tests run so CRUD tests have a fresh slate,
+    while leaving 'employees' and 'departments' untouched for advanced queries.
+    """
+    db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "automation_test.db")
+    database = DBHelper(db_name=db_path)
+
+    
+    yield database  # Hand the DB over to the tests
+    
+    # TEARDOWN
+    database.close()
 
 
 # ──────────────────────────────────────────────────────────────

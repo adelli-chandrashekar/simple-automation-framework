@@ -1,115 +1,90 @@
 """
-Seed Script — Populate the Database with Sample Data
-=====================================================
-This script creates a fresh SQLite database with realistic test data.
-Run it once to have something to view and query against.
+Unified Database Seed Script
+============================
+This script creates a single realistic SQL database (automation_test.db) 
+for all our testing needs (both basic CRUD and advanced SQL).
 
-Usage:
-    python scripts/seed_database.py
+Tables created:
+1. users (for basic CRUD tests in test_db.py)
+2. departments (for advanced SQL joins)
+3. employees (for advanced SQL queries)
 """
-
-import sys
 import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import logging
+import sys
 
+# Add project root to path so we can import utils
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils.db_helper import DBHelper
 
-def seed():
-    db = DBHelper("automation_test.db")
-    db.connect()
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+logger = logging.getLogger(__name__)
 
-    # 1. Create the users table
+def seed_database():
+    db_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "automation_test.db")
+    db = DBHelper(db_name=db_path)
+    
+    logger.info("Dropping old tables if they exist...")
+    db.execute_query("DROP TABLE IF EXISTS users")
+    db.execute_query("DROP TABLE IF EXISTS employees")
+    db.execute_query("DROP TABLE IF EXISTS departments")
+
+    # ── Table 1: USERS (For test_db.py) ──
     db.execute_query('''
-        CREATE TABLE IF NOT EXISTS users (
+        CREATE TABLE users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
-            email TEXT NOT NULL,
-            role TEXT NOT NULL,
-            department TEXT NOT NULL
+            role TEXT NOT NULL
         )
     ''')
+    logger.info("Created 'users' table (empty by default for CRUD tests).")
 
-    # 2. Create the test_results table
+    # ── Table 2: DEPARTMENTS (For test_sql_queries.py) ──
     db.execute_query('''
-        CREATE TABLE IF NOT EXISTS test_results (
+        CREATE TABLE departments (
+            dept_id INTEGER PRIMARY KEY,
+            dept_name TEXT NOT NULL
+        )
+    ''')
+    
+    # ── Table 3: EMPLOYEES (For test_sql_queries.py) ──
+    db.execute_query('''
+        CREATE TABLE employees (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            test_name TEXT NOT NULL,
-            status TEXT NOT NULL,
-            duration_seconds REAL,
-            executed_by TEXT NOT NULL,
-            executed_on TEXT DEFAULT CURRENT_TIMESTAMP
+            name TEXT NOT NULL,
+            department_id INTEGER,
+            salary INTEGER NOT NULL,
+            manager_id INTEGER
         )
     ''')
 
-    # 3. Insert sample users
-    users = [
-        ("Chandra Shekar", "chandra@company.com", "Senior SDET", "QA Engineering"),
-        ("Priya Sharma", "priya@company.com", "SDET", "QA Engineering"),
-        ("Rahul Verma", "rahul@company.com", "Developer", "Backend"),
-        ("Anita Desai", "anita@company.com", "QA Lead", "QA Engineering"),
-        ("Vikram Singh", "vikram@company.com", "DevOps Engineer", "Infrastructure"),
-        ("Meera Patel", "meera@company.com", "SDET", "QA Engineering"),
-        ("Arjun Reddy", "arjun@company.com", "Developer", "Frontend"),
-        ("Sneha Kulkarni", "sneha@company.com", "Product Manager", "Product"),
+    # Seed data for advanced queries
+    departments_data = [
+        (10, "Engineering"),
+        (20, "HR"),
+        (30, "Marketing"),
+        (40, "Sales")  
     ]
-
-    for name, email, role, dept in users:
-        db.execute_query(
-            "INSERT INTO users (name, email, role, department) VALUES (?, ?, ?, ?)",
-            (name, email, role, dept)
-        )
-
-    # 4. Insert sample test results
-    test_results = [
-        ("test_login_success", "PASSED", 1.23, "Chandra Shekar"),
-        ("test_login_failure", "PASSED", 0.89, "Chandra Shekar"),
-        ("test_create_single_user", "PASSED", 2.15, "Chandra Shekar"),
-        ("test_get_user_by_id", "PASSED", 0.95, "Priya Sharma"),
-        ("test_get_nonexistent_user", "FAILED", 1.50, "Priya Sharma"),
-        ("test_delete_user", "PASSED", 1.10, "Chandra Shekar"),
-        ("test_put_update_user_full", "PASSED", 1.80, "Meera Patel"),
-        ("test_patch_update_user_partial", "SKIPPED", 0.00, "Meera Patel"),
-        ("test_login_success", "PASSED", 1.05, "Chandra Shekar"),
-        ("test_create_multiple_users", "FAILED", 3.20, "Priya Sharma"),
+    db.execute_query("INSERT INTO departments VALUES (?, ?)", departments_data, is_many=True)
+    
+    employees_data = [
+        ("Ravi", 10, 90000, None),   
+        ("Priya", 10, 75000, 1),     
+        ("Amit", 20, 60000, 1),      
+        ("Neha", 10, 85000, 1),      
+        ("Suresh", 20, 55000, 3),    
+        ("Kavita", 30, 70000, 1),    
+        ("Deepak", 30, 65000, 6),    
+        ("Priya", 20, 58000, 3)      
     ]
-
-    for test_name, status, duration, executed_by in test_results:
-        db.execute_query(
-            "INSERT INTO test_results (test_name, status, duration_seconds, executed_by) VALUES (?, ?, ?, ?)",
-            (test_name, status, duration, executed_by)
-        )
-
-    # 5. Verify the data
-    print("\n[USERS TABLE]")
-    print("-" * 70)
-    rows = db.fetch_all("SELECT * FROM users")
-    for row in rows:
-        print(f"  ID: {row[0]} | {row[1]:20s} | {row[2]:25s} | {row[3]:15s} | {row[4]}")
-
-    print(f"\n[TEST RESULTS TABLE]")
-    print("-" * 70)
-    rows = db.fetch_all("SELECT * FROM test_results")
-    for row in rows:
-        print(f"  ID: {row[0]} | {row[1]:35s} | {row[2]:8s} | {row[3]:.2f}s | {row[4]:20s} | {row[5]}")
-
-    # 6. Show some SQL queries in action
-    print(f"\n[QUERY] Users in QA Engineering department:")
-    qa_users = db.fetch_all("SELECT name, role FROM users WHERE department = ?", ("QA Engineering",))
-    for u in qa_users:
-        print(f"  {u[0]} -- {u[1]}")
-
-    print(f"\n[QUERY] Failed test results:")
-    failed = db.fetch_all("SELECT test_name, executed_by FROM test_results WHERE status = ?", ("FAILED",))
-    for f in failed:
-        print(f"  FAIL: {f[0]} -- run by {f[1]}")
-
-    print(f"\n[QUERY] Average test duration:")
-    avg = db.fetch_all("SELECT AVG(duration_seconds) FROM test_results WHERE status = 'PASSED'")
-    print(f"  Average duration of passed tests: {avg[0][0]:.2f} seconds")
-
+    db.execute_query(
+        "INSERT INTO employees (name, department_id, salary, manager_id) VALUES (?, ?, ?, ?)", 
+        employees_data,
+        is_many=True
+    )
+    
     db.close()
-    print("\nDatabase seeded successfully! File: automation_test.db")
-
+    logger.info(f"Unified Database seeding complete at {db_path}!")
 
 if __name__ == "__main__":
-    seed()
+    seed_database()

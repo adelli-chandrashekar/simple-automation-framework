@@ -18,8 +18,6 @@ URLs come from environments.json — nothing is hardcoded in this file!
 import pytest
 import logging
 
-from clients.github_client import GitHubClient
-
 logger = logging.getLogger(__name__)
 
 
