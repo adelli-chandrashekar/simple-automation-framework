@@ -1,6 +1,5 @@
 import pytest
 import logging
-from utils.db_helper import DBHelper
 
 logger = logging.getLogger(__name__)
 
@@ -9,9 +8,6 @@ class TestDatabaseOperations:
     
     def test_insert_and_verify_user(self, db):
         """Test inserting a user into the DB and reading it back"""
-        
-        # 0. Clean slate (Simplest way to reset data without complex Pytest fixtures!)
-        db.execute_query("DELETE FROM users")
 
         # 1. Insert Data
         logger.info("Inserting user into DB...")
@@ -34,7 +30,7 @@ class TestDatabaseOperations:
     def test_insert_multiple_users(self, db):
         """Insert multiple users and verify all were stored"""
 
-        # 1. Insert 3 users using a loop
+        # 1. Define 3 users
         users = [
             ("Priya Sharma", "SDET"),
             ("Rahul Verma", "Developer"),

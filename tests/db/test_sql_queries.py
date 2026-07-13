@@ -7,10 +7,6 @@ using pytest to verify our answers are correct.
 
 import pytest
 import logging
-import os
-import sys
-
-from utils.db_helper import DBHelper
 
 logger = logging.getLogger(__name__)
 
